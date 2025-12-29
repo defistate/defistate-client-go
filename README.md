@@ -13,24 +13,19 @@ This SDK provides a high-performance entry point to the DeFI State Stream. It al
 - Go: Version 1.25.4 or higher.
 
 ## Installation
-` git clone https://github.com/defistate/defi-state-client-go
-
- cd defi-state-client-go
-`
+`git clone https://github.com/defistate/defi-state-client-go
+cd defi-state-client-go`
 
 ## Configuration
 Create a `yaml` file in the root directory, with the following fields.
 
-`
-# config.yaml
-chain_id: 1                 #i.e Ethereum Mainnet
-state_stream_url: "wss://state-stream-url"
-`
+`chain_id: 1                 #i.e Ethereum Mainnet
+state_stream_url: "wss://your-state-stream-url"`
 
 ## Usage
 There are two executables in this repository. One of them is the JSON-RPC Stream client and the other is the Console that utilizes the client and provides a CLI for visualizing and experimenting with the Stream.
 
-###Run the Client
+### Run the Client
 There are two ways to run this repository:
 1. Run the Interactive Console (Recommended for Demo)
 
