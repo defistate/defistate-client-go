@@ -6,8 +6,8 @@ This SDK provides a high-performance entry point to the DeFI State Stream. It al
 
 
 ## Key Features
-- JSON-RPC Stream Client: A headless, high-throughput client for ingesting state into your infrastructure.
-- Interactive Console: A TUI (Terminal User Interface) for exploring the DeFi graph (a streamed structure that represents the connections between pools and tokens), and the aggregated protocol state provided by the stream on each block. 
+- **JSON-RPC Stream Client**: A headless, high-throughput client for ingesting state into your infrastructure.
+- **Interactive Console**: A TUI (Terminal User Interface) for exploring the DeFi graph (a streamed structure that represents the connections between pools and tokens), and the aggregated protocol state provided by the stream on each block. 
 
 ## Requirements
 - Go: Version 1.25.4 or higher.
@@ -31,13 +31,13 @@ There are two executables in this repository. One of them is the JSON-RPC Stream
 
 ### Run the Client
 There are two ways to run this repository:
-1. Run the Interactive Console (Recommended for Demo)
+1. **Run the Interactive Console**
 
     Use this to visually explore the graph, look up pools, and watch live blocks.
 
     `go run cmd/console/main.go -config=config.yaml`
 
-2. Run the Headless Client
+2. **Run the Headless Client**
 
     Use this to stream data directly to your application logic or logs (good for background services).
 
