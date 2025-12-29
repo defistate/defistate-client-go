@@ -2,7 +2,7 @@
 
 ### The public repository for Defistate's Stream clients and interactive CLI tools.
 
-This SDK provides a high-performance entry point to the DeFI State Stream. It allows you ingest, normalize and visualize aggregated protocol data in real-time.
+Defistate provides a block-synchronized stream, aggregated across protocols and optimized for real-time consumption. We handle the complexity of DeFi data so you can focus on building..
 
 
 ## Key Features
