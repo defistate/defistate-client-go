@@ -33,17 +33,15 @@ There are two executables in this repository. One of them is the JSON-RPC Stream
 There are two ways to run this repository:
 1. Run the Interactive Console (Recommended for Demo)
 
-Use this to visually explore the graph, look up pools, and watch live blocks.
-Bash
+    Use this to visually explore the graph, look up pools, and watch live blocks.
 
-`go run cmd/console/main.go -config=config.yaml`
+    `go run cmd/console/main.go -config=config.yaml`
 
 2. Run the Headless Client
 
-Use this to stream data directly to your application logic or logs (good for background services).
-Bash
+    Use this to stream data directly to your application logic or logs (good for background services).
 
-`go run cmd/client/main.go -config=config.yaml`
+    `go run cmd/client/main.go -config=config.yaml`
 
 ## Architecture
 
