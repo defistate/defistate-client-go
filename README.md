@@ -40,7 +40,7 @@ There are two ways to run this repository:
 
 2. **Run the Headless Client**
 
-    Use this to stream data directly to your application logic or logs (good for background services).
+    Use this to stream data directly to your application logic
 
     `go run cmd/client/main.go -config=config.yaml`
 
