@@ -22,7 +22,7 @@ import (
 	"github.com/defistate/defi-state-client-go/cmd/client/config"
 	"github.com/defistate/defi-state-client-go/differ"
 	"github.com/defistate/defi-state-client-go/engine"
-	"github.com/defistate/defi-state-client-go/graph" // Imported Graph Package
+	"github.com/defistate/defi-state-client-go/graph"
 	"github.com/defistate/defi-state-client-go/pkg/chains"
 	ethpkg "github.com/defistate/defi-state-client-go/pkg/chains/ethereum"
 	"github.com/defistate/defi-state-client-go/protocols/poolregistry"
@@ -224,7 +224,7 @@ func handleCommand(input string, safeState *SafeState, reader *bufio.Reader) {
 	case "5":
 		watchPool(safeState, reader)
 	case "6":
-		findRoute(state, reader) // NEW
+		findRoute(state, reader)
 	case "h":
 		printHelp()
 	case "q":
@@ -606,13 +606,8 @@ func findRoute(state *engine.State, reader *bufio.Reader) {
 	// Cast to correct type required by NewGraph (defined in graph package, likely poolregistry.TokenPoolsRegistryView)
 	tokenPoolsView, ok := graphProto.Data.(*poolregistry.TokenPoolsRegistryView)
 	if !ok {
-		// Fallback for value type
-		if val, ok := graphProto.Data.(poolregistry.TokenPoolsRegistryView); ok {
-			tokenPoolsView = &val
-		} else {
-			fmt.Printf(Red+"[ERROR] Bad Graph Data Type: %T%s\n", graphProto.Data, Reset)
-			return
-		}
+		fmt.Printf(Red+"[ERROR] Bad Graph Data Type: %T%s\n", graphProto.Data, Reset)
+		return
 	}
 
 	// B. Get Pool Registry (for protocol lookups)
