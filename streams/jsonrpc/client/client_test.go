@@ -347,3 +347,107 @@ func TestClient_Reconnection(t *testing.T) {
 		t.Fatal("Timed out waiting for client to reconnect")
 	}
 }
+
+// --- StreamProcessor Tests ---
+
+func TestStreamProcessor_FullAndDiffFlow(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+
+	// Use a patcher that actually updates the block number so we can verify diffs
+	statePatcher := func(prev *engine.State, diff *differ.StateDiff) (*engine.State, error) {
+		return &engine.State{
+			Block:     diff.ToBlock,   // Update block info
+			Protocols: prev.Protocols, // Keep protocols (simplification)
+		}, nil
+	}
+
+	sp := NewStreamProcessor(logger, 10, statePatcher, mockDecoder, mockDecoder)
+
+	events := generateTestEvents(t)
+	// Event 0: Full (Block 100)
+	// Event 1: Diff (100->101)
+
+	// 1. Process Full State
+	fullEventBytes, err := json.Marshal(events[0])
+	require.NoError(t, err)
+
+	err = sp.ProcessMessage(fullEventBytes)
+	require.NoError(t, err)
+
+	select {
+	case state := <-sp.State():
+		assert.Equal(t, int64(100), state.Block.Number.Int64())
+	case <-time.After(time.Second):
+		t.Fatal("Timeout waiting for full state")
+	}
+
+	// 2. Process Diff
+	diffEventBytes, err := json.Marshal(events[1])
+	require.NoError(t, err)
+
+	err = sp.ProcessMessage(diffEventBytes)
+	require.NoError(t, err)
+
+	select {
+	case state := <-sp.State():
+		assert.Equal(t, int64(101), state.Block.Number.Int64())
+	case <-time.After(time.Second):
+		t.Fatal("Timeout waiting for diff state")
+	}
+}
+
+func TestStreamProcessor_ValidationErrors(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sp := NewStreamProcessor(logger, 10, noopStatePatcher, mockDecoder, mockDecoder)
+
+	events := generateTestEvents(t)
+	// Event 1 is Diff (100->101)
+
+	// 1. Diff before Full
+	diffEventBytes, _ := json.Marshal(events[1])
+	err := sp.ProcessMessage(diffEventBytes)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "received diff before full state")
+
+	// 2. Malformed JSON
+	err = sp.ProcessMessage([]byte(`{not-json}`))
+	require.Error(t, err)
+}
+
+func TestStreamProcessor_OutOfOrderDiff(t *testing.T) {
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	sp := NewStreamProcessor(logger, 10, noopStatePatcher, mockDecoder, mockDecoder)
+
+	events := generateTestEvents(t)
+	// Process Full first
+	fullEventBytes, _ := json.Marshal(events[0]) // Block 100
+	require.NoError(t, sp.ProcessMessage(fullEventBytes))
+	<-sp.State() // Drain
+
+	// Create Gap Diff (105 -> 106)
+	gapStruct := struct {
+		FromBlock uint64                                    `json:"fromBlock"`
+		ToBlock   engine.BlockSummary                       `json:"toBlock"`
+		Timestamp uint64                                    `json:"timestamp"`
+		Protocols map[engine.ProtocolID]differ.ProtocolDiff `json:"protocols"`
+	}{
+		FromBlock: 105,
+		ToBlock:   engine.BlockSummary{Number: big.NewInt(106)},
+		Timestamp: uint64(time.Now().Unix()),
+		Protocols: map[engine.ProtocolID]differ.ProtocolDiff{},
+	}
+	payload, _ := json.Marshal(gapStruct)
+	gapEvent := &SubscriptionEvent{Type: "diff", Payload: payload}
+	gapBytes, _ := json.Marshal(gapEvent)
+
+	// Should not error, but log warn and not emit state
+	err := sp.ProcessMessage(gapBytes)
+	require.NoError(t, err)
+
+	select {
+	case <-sp.State():
+		t.Fatal("Should not emit state for out-of-order diff")
+	default:
+		// OK
+	}
+}
