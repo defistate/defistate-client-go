@@ -6,7 +6,6 @@ import (
 	"io"
 	"log/slog"
 	"math/big"
-	"os"
 	"testing"
 	"time"
 
@@ -21,7 +20,6 @@ import (
 	uniswapv2indexer "github.com/defistate/defistate-client-go/protocols/uniswapv2/indexer"
 	uniswapv3 "github.com/defistate/defistate-client-go/protocols/uniswapv3"
 	uniswapv3indexer "github.com/defistate/defistate-client-go/protocols/uniswapv3/indexer"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -255,7 +253,7 @@ func TestClient_Backpressure(t *testing.T) {
 	c := &Client{
 		stream:              transport,
 		logger:              logger,
-		stateCh:             make(chan *State, 0), // Unbuffered!
+		stateCh:            make(chan *State), // Unbuffered!
 		errCh:               make(chan error, 1),
 		tokenIndexer:        &mockTokenIndexer{},
 		poolRegistryIndexer: &mockPoolRegistryIndexer{},
@@ -328,11 +326,4 @@ func TestOptions(t *testing.T) {
 	assert.Same(t, mockUniswapV2Idx, c.uniswapV2Indexer, "WithUniswapV2Indexer should set uniswapV2Indexer")
 	assert.Same(t, mockUniswapV3Idx, c.uniswapV3Indexer, "WithUniswapV3Indexer should set uniswapV3Indexer")
 	assert.Same(t, mockGrapher, c.tokenPoolGrapher, "WithTokenPoolGrapher should set tokenPoolGrapher")
-}
-
-func TestRT(t *testing.T) {
-	ctx, cancel := context.WithCancel(context.Background())
-	Dial(ctx, "wss://katana.defistate.io", slog.New(slog.NewJSONHandler(os.Stdout, nil)), prometheus.DefaultRegisterer)
-	defer cancel()
-	select {}
 }

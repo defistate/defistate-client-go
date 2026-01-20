@@ -253,7 +253,7 @@ func TestClient_Backpressure(t *testing.T) {
 	c := &Client{
 		stream:              transport,
 		logger:              logger,
-		stateCh:             make(chan *State, 0), // Unbuffered!
+		stateCh:             make(chan *State), // Unbuffered!
 		errCh:               make(chan error, 1),
 		tokenIndexer:        &mockTokenIndexer{},
 		poolRegistryIndexer: &mockPoolRegistryIndexer{},
