@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/defistate/defi-state-client-go/differ"
-	"github.com/defistate/defi-state-client-go/engine"
+	"github.com/defistate/defistate-client-go/differ"
+	"github.com/defistate/defistate-client-go/engine"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

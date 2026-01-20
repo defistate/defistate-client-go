@@ -1,4 +1,4 @@
-module github.com/defistate/defi-state-client-go
+module github.com/defistate/defistate-client-go
 
 go 1.25.4
 

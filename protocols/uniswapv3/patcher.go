@@ -17,9 +17,9 @@ func copyTickInfo(t TickInfo) TickInfo {
 	return newTick
 }
 
-// deepCopyPool creates a new PoolView with its own memory for all pointer types,
+// deepCopyPool creates a new Pool with its own memory for all pointer types,
 // including the nested Ticks slice. This is essential for memory safety.
-func deepCopyPool(p PoolView) PoolView {
+func deepCopyPool(p Pool) Pool {
 	newPool := p
 	// Deep copy the *big.Int fields. Based on the system's contract, these are never nil.
 	newPool.Liquidity = new(big.Int).Set(p.Liquidity)
@@ -40,9 +40,9 @@ func deepCopyPool(p PoolView) PoolView {
 
 // Patcher is a concrete implementation of the UniswapV3SubsystemPatcher function type.
 // It efficiently constructs a new state for Uniswap V3 pools by applying a diff to a previous state.
-func Patcher(prevState []PoolView, diff UniswapV3SystemDiff) ([]PoolView, error) {
+func Patcher(prevState []Pool, diff UniswapV3SystemDiff) ([]Pool, error) {
 	// 1. Create a map from the previous state for efficient manipulation, ensuring a deep copy.
-	newStateMap := make(map[uint64]PoolView, len(prevState))
+	newStateMap := make(map[uint64]Pool, len(prevState))
 	for _, pool := range prevState {
 		newStateMap[pool.ID] = deepCopyPool(pool)
 	}
@@ -63,7 +63,7 @@ func Patcher(prevState []PoolView, diff UniswapV3SystemDiff) ([]PoolView, error)
 	}
 
 	// 5. Convert the final map back into a slice.
-	finalState := make([]PoolView, 0, len(newStateMap))
+	finalState := make([]Pool, 0, len(newStateMap))
 	for _, pool := range newStateMap {
 		finalState = append(finalState, pool)
 	}

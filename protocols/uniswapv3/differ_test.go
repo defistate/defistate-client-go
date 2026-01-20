@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// Helper function to create a new PoolView with all relevant fields for testing the hash.
-func newTestPool(id uint64, liquidity, sqrtPrice, tick int64, ticks []TickInfo) PoolView {
-	return PoolView{
+// Helper function to create a new Pool with all relevant fields for testing the hash.
+func newTestPool(id uint64, liquidity, sqrtPrice, tick int64, ticks []TickInfo) Pool {
+	return Pool{
 		PoolViewMinimal: PoolViewMinimal{
 			ID:           id,
 			Liquidity:    big.NewInt(liquidity),
@@ -32,8 +32,8 @@ func TestDiffer(t *testing.T) {
 	pool3Old := newTestPool(3, 3000, 7000, 300, nil)
 
 	t.Run("should identify additions correctly", func(t *testing.T) {
-		oldState := []PoolView{pool1Old}
-		newState := []PoolView{pool1Old, pool2Old} // pool2Old is the addition
+		oldState := []Pool{pool1Old}
+		newState := []Pool{pool1Old, pool2Old} // pool2Old is the addition
 
 		diff := Differ(oldState, newState)
 
@@ -45,8 +45,8 @@ func TestDiffer(t *testing.T) {
 	})
 
 	t.Run("should identify deletions correctly", func(t *testing.T) {
-		oldState := []PoolView{pool1Old, pool2Old} // pool2Old will be deleted
-		newState := []PoolView{pool1Old}
+		oldState := []Pool{pool1Old, pool2Old} // pool2Old will be deleted
+		newState := []Pool{pool1Old}
 
 		diff := Differ(oldState, newState)
 
@@ -60,8 +60,8 @@ func TestDiffer(t *testing.T) {
 	t.Run("should identify updates when a core field changes", func(t *testing.T) {
 		pool1Updated := newTestPool(1, 1001, 5000, 100, []TickInfo{tick1}) // Liquidity changed
 
-		oldState := []PoolView{pool1Old}
-		newState := []PoolView{pool1Updated}
+		oldState := []Pool{pool1Old}
+		newState := []Pool{pool1Updated}
 
 		diff := Differ(oldState, newState)
 
@@ -77,8 +77,8 @@ func TestDiffer(t *testing.T) {
 		tick1Updated := TickInfo{Index: 10, LiquidityNet: big.NewInt(101)}
 		pool1UpdatedWithTickChange := newTestPool(1, 1000, 5000, 100, []TickInfo{tick1Updated})
 
-		oldState := []PoolView{pool1Old}
-		newState := []PoolView{pool1UpdatedWithTickChange}
+		oldState := []Pool{pool1Old}
+		newState := []Pool{pool1UpdatedWithTickChange}
 
 		diff := Differ(oldState, newState)
 
@@ -95,8 +95,8 @@ func TestDiffer(t *testing.T) {
 		pool1Updated := newTestPool(1, 1000, 5001, 100, []TickInfo{tick1}) // SqrtPriceX96 changed
 		pool4New := newTestPool(4, 4000, 8000, 400, nil)
 
-		oldState := []PoolView{pool1Old, pool2Old, pool3Old}
-		newState := []PoolView{pool1Updated, pool2Old, pool4New}
+		oldState := []Pool{pool1Old, pool2Old, pool3Old}
+		newState := []Pool{pool1Updated, pool2Old, pool4New}
 
 		diff := Differ(oldState, newState)
 
@@ -112,8 +112,8 @@ func TestDiffer(t *testing.T) {
 	})
 
 	t.Run("should produce an empty diff when there are no changes", func(t *testing.T) {
-		oldState := []PoolView{pool1Old, pool2Old}
-		newState := []PoolView{pool1Old, pool2Old}
+		oldState := []Pool{pool1Old, pool2Old}
+		newState := []Pool{pool1Old, pool2Old}
 
 		diff := Differ(oldState, newState)
 

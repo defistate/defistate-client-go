@@ -5,9 +5,9 @@ import (
 )
 
 type UniswapV3SystemDiff struct {
-	Additions []PoolView `json:"additions,omitempty"`
-	Updates   []PoolView `json:"updates,omitempty"`
-	Deletions []uint64   `json:"deletions,omitempty"`
+	Additions []Pool   `json:"additions,omitempty"`
+	Updates   []Pool   `json:"updates,omitempty"`
+	Deletions []uint64 `json:"deletions,omitempty"`
 }
 
 // IsEmpty returns true if the diff contains no changes.
@@ -16,7 +16,7 @@ func (d UniswapV3SystemDiff) IsEmpty() bool {
 }
 
 // @todo optimize
-func poolChanged(old, new PoolView) bool {
+func poolChanged(old, new Pool) bool {
 	// 1. Compare core dynamic fields
 
 	if old.Tick != new.Tick {
@@ -67,21 +67,21 @@ func poolChanged(old, new PoolView) bool {
 // Differ is a concrete implementation of the UniswapV3SystemDiffer function type.
 // It efficiently calculates the difference between two states of Uniswap V3 pools.
 // The logic is optimized for performance using maps for O(1) average time complexity lookups.
-func Differ(old, new []PoolView) UniswapV3SystemDiff {
+func Differ(old, new []Pool) UniswapV3SystemDiff {
 	// --- 1. Create maps for efficient lookups ---
-	// The key is the pool's unique ID, and the value is the PoolView itself.
-	oldPoolsMap := make(map[uint64]PoolView, len(old))
+	// The key is the pool's unique ID, and the value is the Pool itself.
+	oldPoolsMap := make(map[uint64]Pool, len(old))
 	for _, pool := range old {
 		oldPoolsMap[pool.ID] = pool
 	}
 
-	newPoolsMap := make(map[uint64]PoolView, len(new))
+	newPoolsMap := make(map[uint64]Pool, len(new))
 	for _, pool := range new {
 		newPoolsMap[pool.ID] = pool
 	}
 
-	var additions []PoolView
-	var updates []PoolView
+	var additions []Pool
+	var updates []Pool
 	var deletions []uint64
 
 	// --- 2. Identify Additions and Updates ---

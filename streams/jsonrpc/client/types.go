@@ -3,7 +3,7 @@ package client
 import (
 	"encoding/json"
 
-	"github.com/defistate/defi-state-client-go/engine"
+	"github.com/defistate/defistate-client-go/engine"
 )
 
 // clientState mirrors engine.State but strictly types the Data field as RawMessage.

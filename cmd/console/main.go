@@ -19,17 +19,23 @@ import (
 	"text/tabwriter"
 	"time"
 
-	"github.com/defistate/defi-state-client-go/cmd/client/config"
-	"github.com/defistate/defi-state-client-go/differ"
-	"github.com/defistate/defi-state-client-go/engine"
-	"github.com/defistate/defi-state-client-go/graph"
-	"github.com/defistate/defi-state-client-go/pkg/chains"
-	ethpkg "github.com/defistate/defi-state-client-go/pkg/chains/ethereum"
-	"github.com/defistate/defi-state-client-go/protocols/poolregistry"
-	"github.com/defistate/defi-state-client-go/protocols/token"
-	"github.com/defistate/defi-state-client-go/protocols/uniswapv2"
-	"github.com/defistate/defi-state-client-go/protocols/uniswapv3"
-	"github.com/defistate/defi-state-client-go/streams/jsonrpc/client"
+	"github.com/defistate/defistate-client-go/cmd/client/config"
+	"github.com/defistate/defistate-client-go/differ"
+	"github.com/defistate/defistate-client-go/engine"
+	"github.com/defistate/defistate-client-go/examples/graph"
+	tokenpoolregistry "github.com/defistate/defistate-client-go/protocols/tokenpoolregistry"
+
+	poolregistry "github.com/defistate/defistate-client-go/protocols/poolregistry"
+	"github.com/defistate/defistate-client-go/protocols/tokenregistry"
+	"github.com/defistate/defistate-client-go/protocols/uniswapv2"
+	"github.com/defistate/defistate-client-go/protocols/uniswapv3"
+	"github.com/defistate/defistate-client-go/streams/jsonrpc/client"
+	"github.com/defistate/defistate-client-go/streams/jsonrpc/stateops/chains"
+	arbitrumstateops "github.com/defistate/defistate-client-go/streams/jsonrpc/stateops/chains/arbitrum"
+	basestateops "github.com/defistate/defistate-client-go/streams/jsonrpc/stateops/chains/base"
+	ethstateops "github.com/defistate/defistate-client-go/streams/jsonrpc/stateops/chains/ethereum"
+	katanastateops "github.com/defistate/defistate-client-go/streams/jsonrpc/stateops/chains/katana"
+
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -109,11 +115,30 @@ func main() {
 
 	switch cfg.ChainID.Uint64() {
 	case chains.Mainnet:
-		chainStateOps, err = ethpkg.NewStateOps(rootLogger, prometheusRegistry)
+		chainStateOps, err = ethstateops.NewStateOps(rootLogger, prometheusRegistry)
 		if err != nil {
 			rootLogger.Error("Failed to initialize Chain State Ops", "chain_id", cfg.ChainID, "error", err)
 			closeApp()
 		}
+	case chains.Arbitrum:
+		chainStateOps, err = arbitrumstateops.NewStateOps(rootLogger, prometheusRegistry)
+		if err != nil {
+			rootLogger.Error("Failed to initialize Chain State Ops", "chain_id", cfg.ChainID, "error", err)
+			closeApp()
+		}
+	case chains.Base:
+		chainStateOps, err = basestateops.NewStateOps(rootLogger, prometheusRegistry)
+		if err != nil {
+			rootLogger.Error("Failed to initialize Chain State Ops", "chain_id", cfg.ChainID, "error", err)
+			closeApp()
+		}
+	case chains.Katana:
+		chainStateOps, err = katanastateops.NewStateOps(rootLogger, prometheusRegistry)
+		if err != nil {
+			rootLogger.Error("Failed to initialize Chain State Ops", "chain_id", cfg.ChainID, "error", err)
+			closeApp()
+		}
+
 	default:
 		rootLogger.Error(fmt.Sprintf("Chain State Ops not found for chain with ID %d", cfg.ChainID.Uint64()))
 		closeApp()
@@ -258,7 +283,7 @@ func printHelp() {
 	fmt.Println("      - Maps this ID to a " + Green + "32-byte Key" + Reset + " (holding the Address or Identifier).")
 	fmt.Println("")
 	fmt.Printf("   B. %sToken Registry%s\n", Cyan, Reset)
-	fmt.Println("      - Assigns a unique " + Green + "uint64 ID" + Reset + " to every ERC20 token.")
+	fmt.Println("      - Assigns a unique " + Green + "uint64 ID" + Reset + " to every ERC20 tokenregistry.")
 	fmt.Println("      - Provides static metadata (Symbol, Decimals, Name).")
 	fmt.Println("")
 	fmt.Printf("   C. %sToken-Pool Graph%s\n", Cyan, Reset)
@@ -354,15 +379,15 @@ func findPoolsByToken(state *engine.State, reader *bufio.Reader) {
 		fmt.Println(Red + "[ERROR] 'token-system' missing." + Reset)
 		return
 	}
-	// Cast to []token.TokenView
-	tokens, ok := tokenProto.Data.([]token.TokenView)
+	// Cast to []tokenregistry.Token
+	tokens, ok := tokenProto.Data.([]tokenregistry.Token)
 	if !ok {
 		fmt.Printf(Red+"[ERROR] Bad Token Data Type: %T%s\n", tokenProto.Data, Reset)
 		return
 	}
 
 	var searchTokenID uint64
-	var searchToken token.TokenView
+	var searchToken tokenregistry.Token
 	foundToken := false
 
 	// Build a Symbol Map for fast lookup of Paired Tokens later
@@ -397,11 +422,10 @@ func findPoolsByToken(state *engine.State, reader *bufio.Reader) {
 		return
 	}
 
-	// Uses poolregistry for TokenPoolsRegistryView as per your structure
-	graphView, ok := graphProto.Data.(*poolregistry.TokenPoolsRegistryView)
+	graphView, ok := graphProto.Data.(*tokenpoolregistry.TokenPoolRegistryView)
 	if !ok {
 		// Try by value just in case
-		if val, ok := graphProto.Data.(poolregistry.TokenPoolsRegistryView); ok {
+		if val, ok := graphProto.Data.(tokenpoolregistry.TokenPoolRegistryView); ok {
 			graphView = &val
 		} else {
 			fmt.Printf(Red+"[ERROR] Bad Graph Data Type: %T%s\n", graphProto.Data, Reset)
@@ -454,7 +478,7 @@ func findPoolsByToken(state *engine.State, reader *bufio.Reader) {
 	}
 
 	if len(poolPairs) == 0 {
-		fmt.Println(Yellow + "[INFO] No active pools found for this token." + Reset)
+		fmt.Println(Yellow + "[INFO] No active pools found for this tokenregistry." + Reset)
 		return
 	}
 
@@ -465,13 +489,13 @@ func findPoolsByToken(state *engine.State, reader *bufio.Reader) {
 	if !ok {
 		return
 	}
-	poolReg, ok := poolProto.Data.(poolregistry.PoolRegistryView)
+	poolReg, ok := poolProto.Data.(poolregistry.PoolRegistry)
 	if !ok {
 		return
 	}
 
 	// Build lookup map for pools
-	poolMap := make(map[uint64]poolregistry.PoolView)
+	poolMap := make(map[uint64]poolregistry.Pool)
 	for _, p := range poolReg.Pools {
 		poolMap[p.ID] = p
 	}
@@ -603,8 +627,8 @@ func findRoute(state *engine.State, reader *bufio.Reader) {
 		fmt.Println(Red + "[ERROR] Graph protocol missing." + Reset)
 		return
 	}
-	// Cast to correct type required by NewGraph (defined in graph package, likely poolregistry.TokenPoolsRegistryView)
-	tokenPoolsView, ok := graphProto.Data.(*poolregistry.TokenPoolsRegistryView)
+	// Cast to correct type required by NewGraph (defined in graph package, likely poolregistry.TokenPoolRegistryView)
+	tokenPoolsView, ok := graphProto.Data.(*tokenpoolregistry.TokenPoolRegistryView)
 	if !ok {
 		fmt.Printf(Red+"[ERROR] Bad Graph Data Type: %T%s\n", graphProto.Data, Reset)
 		return
@@ -616,7 +640,7 @@ func findRoute(state *engine.State, reader *bufio.Reader) {
 		fmt.Println(Red + "[ERROR] Pool registry missing." + Reset)
 		return
 	}
-	poolRegView, ok := poolProto.Data.(poolregistry.PoolRegistryView)
+	poolRegView, ok := poolProto.Data.(poolregistry.PoolRegistry)
 	if !ok {
 		fmt.Println(Red + "[ERROR] Invalid pool registry type." + Reset)
 		return
@@ -627,7 +651,7 @@ func findRoute(state *engine.State, reader *bufio.Reader) {
 		fmt.Println("token-system missing")
 		return
 	}
-	tokens, ok := tokenProto.Data.([]token.TokenView)
+	tokens, ok := tokenProto.Data.([]tokenregistry.Token)
 	if !ok {
 		fmt.Println("bad token data")
 		return
@@ -656,7 +680,7 @@ func findRoute(state *engine.State, reader *bufio.Reader) {
 	printRouteResult(paths, amountOut, tokenIn, tokenOut, poolRegView, tokens)
 }
 
-func printRouteResult(paths []graph.TokenPoolPath, amountOut *big.Int, tokenIn, tokenOut *token.TokenView, poolReg poolregistry.PoolRegistryView, allTokens []token.TokenView) {
+func printRouteResult(paths []graph.TokenPoolPath, amountOut *big.Int, tokenIn, tokenOut *tokenregistry.Token, poolReg poolregistry.PoolRegistry, allTokens []tokenregistry.Token) {
 	header("BEST ROUTE FOUND")
 
 	// Convert output amount to decimal format
@@ -722,7 +746,7 @@ func printRouteResult(paths []graph.TokenPoolPath, amountOut *big.Int, tokenIn, 
 	}
 }
 
-func readAndValidateToken(state *engine.State, reader *bufio.Reader) (*token.TokenView, error) {
+func readAndValidateToken(state *engine.State, reader *bufio.Reader) (*tokenregistry.Token, error) {
 	input, _ := reader.ReadString('\n')
 	input = strings.TrimPrefix(strings.TrimSpace(input), "0x")
 	if input == "" {
@@ -738,7 +762,7 @@ func readAndValidateToken(state *engine.State, reader *bufio.Reader) (*token.Tok
 	if !ok {
 		return nil, fmt.Errorf("token-system missing")
 	}
-	tokens, ok := tokenProto.Data.([]token.TokenView)
+	tokens, ok := tokenProto.Data.([]tokenregistry.Token)
 	if !ok {
 		return nil, fmt.Errorf("bad token data")
 	}
@@ -791,12 +815,12 @@ func printPoolByKey(state *engine.State, searchKey [32]byte) {
 		return
 	}
 
-	registry, ok := protocolState.Data.(poolregistry.PoolRegistryView)
+	registry, ok := protocolState.Data.(poolregistry.PoolRegistry)
 	if !ok {
 		return
 	}
 
-	var foundPool *poolregistry.PoolView
+	var foundPool *poolregistry.Pool
 	for i := range registry.Pools {
 		if registry.Pools[i].Key == searchKey {
 			foundPool = &registry.Pools[i]
@@ -832,10 +856,9 @@ func inspectProtocolData(state *engine.State, pID engine.ProtocolID, poolID uint
 	}
 
 	switch pState.Schema {
-	case uniswapv2.UniswapV2ProtocolSchema:
-		// OPTIMIZATION: Direct linear scan on slice instead of expensive map build
-		data := pState.Data.([]uniswapv2.PoolView)
-		var pool *uniswapv2.PoolView
+	case uniswapv2.Schema:
+		data := pState.Data.([]uniswapv2.Pool)
+		var pool *uniswapv2.Pool
 		for i := range data {
 			if data[i].ID == poolID {
 				pool = &data[i]
@@ -851,10 +874,9 @@ func inspectProtocolData(state *engine.State, pID engine.ProtocolID, poolID uint
 			fmt.Printf(Yellow+"[WARN] Pool ID %d missing from V2 state.%s\n", poolID, Reset)
 		}
 
-	case uniswapv3.UniswapV3ProtocolSchema:
-		// OPTIMIZATION: Direct linear scan
-		data := pState.Data.([]uniswapv3.PoolView)
-		var pool *uniswapv3.PoolView
+	case uniswapv3.Schema:
+		data := pState.Data.([]uniswapv3.Pool)
+		var pool *uniswapv3.Pool
 		for i := range data {
 			if data[i].ID == poolID {
 				pool = &data[i]

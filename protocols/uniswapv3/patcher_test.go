@@ -9,7 +9,7 @@ import (
 )
 
 // Helper to find a pool by ID in a slice for testing assertions.
-func findPoolByID(pools []PoolView, id uint64) *PoolView {
+func findPoolByID(pools []Pool, id uint64) *Pool {
 	for i := range pools {
 		if pools[i].ID == id {
 			return &pools[i]
@@ -27,12 +27,12 @@ func TestPatcher(t *testing.T) {
 	pool2Old := newTestPool(2, 2000, 6000, 200, []TickInfo{tick2})
 	pool3Old := newTestPool(3, 3000, 7000, 300, nil)
 
-	initialState := []PoolView{pool1Old, pool2Old, pool3Old}
+	initialState := []Pool{pool1Old, pool2Old, pool3Old}
 
 	t.Run("should handle only additions", func(t *testing.T) {
 		pool4New := newTestPool(4, 4000, 8000, 400, nil)
 		diff := UniswapV3SystemDiff{
-			Additions: []PoolView{pool4New},
+			Additions: []Pool{pool4New},
 		}
 
 		newState, err := Patcher(initialState, diff)
@@ -59,7 +59,7 @@ func TestPatcher(t *testing.T) {
 	t.Run("should handle only updates", func(t *testing.T) {
 		pool1Updated := newTestPool(1, 1001, 5005, 101, []TickInfo{tick1}) // All core fields changed
 		diff := UniswapV3SystemDiff{
-			Updates: []PoolView{pool1Updated},
+			Updates: []Pool{pool1Updated},
 		}
 
 		newState, err := Patcher(initialState, diff)
@@ -75,11 +75,11 @@ func TestPatcher(t *testing.T) {
 
 	t.Run("should verify deep copy on update", func(t *testing.T) {
 		// Create a fresh copy for this test to avoid modifying the global test data.
-		localInitialState := []PoolView{newTestPool(1, 1000, 5000, 100, []TickInfo{tick1})}
+		localInitialState := []Pool{newTestPool(1, 1000, 5000, 100, []TickInfo{tick1})}
 
 		pool1Updated := newTestPool(1, 1001, 5005, 101, []TickInfo{tick1})
 		diff := UniswapV3SystemDiff{
-			Updates: []PoolView{pool1Updated},
+			Updates: []Pool{pool1Updated},
 		}
 
 		newState, err := Patcher(localInitialState, diff)
@@ -102,8 +102,8 @@ func TestPatcher(t *testing.T) {
 		pool4New := newTestPool(4, 4000, 8000, 400, nil)
 		pool2Updated := newTestPool(2, 2002, 6006, 202, []TickInfo{tick2})
 		diff := UniswapV3SystemDiff{
-			Additions: []PoolView{pool4New},
-			Updates:   []PoolView{pool2Updated},
+			Additions: []Pool{pool4New},
+			Updates:   []Pool{pool2Updated},
 			Deletions: []uint64{3},
 		}
 

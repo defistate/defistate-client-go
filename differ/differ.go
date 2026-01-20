@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/defistate/defi-state-client-go/engine"
+	"github.com/defistate/defistate-client-go/engine"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

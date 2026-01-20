@@ -10,13 +10,13 @@ import (
 
 func TestDiffer(t *testing.T) {
 	// --- Base Data for Tests ---
-	pool1Old := PoolView{ID: 1, Reserve0: big.NewInt(1000), Reserve1: big.NewInt(2000)}
-	pool2Old := PoolView{ID: 2, Reserve0: big.NewInt(3000), Reserve1: big.NewInt(4000)}
-	pool3Old := PoolView{ID: 3, Reserve0: big.NewInt(5000), Reserve1: big.NewInt(6000)}
+	pool1Old := Pool{ID: 1, Reserve0: big.NewInt(1000), Reserve1: big.NewInt(2000)}
+	pool2Old := Pool{ID: 2, Reserve0: big.NewInt(3000), Reserve1: big.NewInt(4000)}
+	pool3Old := Pool{ID: 3, Reserve0: big.NewInt(5000), Reserve1: big.NewInt(6000)}
 
 	t.Run("should identify additions correctly", func(t *testing.T) {
-		oldState := []PoolView{pool1Old}
-		newState := []PoolView{pool1Old, pool2Old} // pool2Old is the addition
+		oldState := []Pool{pool1Old}
+		newState := []Pool{pool1Old, pool2Old} // pool2Old is the addition
 
 		diff := Differ(oldState, newState)
 
@@ -28,8 +28,8 @@ func TestDiffer(t *testing.T) {
 	})
 
 	t.Run("should identify deletions correctly", func(t *testing.T) {
-		oldState := []PoolView{pool1Old, pool2Old} // pool2Old will be deleted
-		newState := []PoolView{pool1Old}
+		oldState := []Pool{pool1Old, pool2Old} // pool2Old will be deleted
+		newState := []Pool{pool1Old}
 
 		diff := Differ(oldState, newState)
 
@@ -41,10 +41,10 @@ func TestDiffer(t *testing.T) {
 	})
 
 	t.Run("should identify updates correctly", func(t *testing.T) {
-		pool1Updated := PoolView{ID: 1, Reserve0: big.NewInt(1001), Reserve1: big.NewInt(2000)} // Reserve0 changed
+		pool1Updated := Pool{ID: 1, Reserve0: big.NewInt(1001), Reserve1: big.NewInt(2000)} // Reserve0 changed
 
-		oldState := []PoolView{pool1Old}
-		newState := []PoolView{pool1Updated}
+		oldState := []Pool{pool1Old}
+		newState := []Pool{pool1Updated}
 
 		diff := Differ(oldState, newState)
 
@@ -58,11 +58,11 @@ func TestDiffer(t *testing.T) {
 	t.Run("should handle a mix of additions, updates, and deletions", func(t *testing.T) {
 		// pool1 is updated, pool2 is unchanged, pool3 is deleted
 		// pool4 is added
-		pool1Updated := PoolView{ID: 1, Reserve0: big.NewInt(1001), Reserve1: big.NewInt(2000)}
-		pool4New := PoolView{ID: 4, Reserve0: big.NewInt(7000), Reserve1: big.NewInt(8000)}
+		pool1Updated := Pool{ID: 1, Reserve0: big.NewInt(1001), Reserve1: big.NewInt(2000)}
+		pool4New := Pool{ID: 4, Reserve0: big.NewInt(7000), Reserve1: big.NewInt(8000)}
 
-		oldState := []PoolView{pool1Old, pool2Old, pool3Old}
-		newState := []PoolView{pool1Updated, pool2Old, pool4New}
+		oldState := []Pool{pool1Old, pool2Old, pool3Old}
+		newState := []Pool{pool1Updated, pool2Old, pool4New}
 
 		diff := Differ(oldState, newState)
 
@@ -78,8 +78,8 @@ func TestDiffer(t *testing.T) {
 	})
 
 	t.Run("should produce an empty diff when there are no changes", func(t *testing.T) {
-		oldState := []PoolView{pool1Old, pool2Old}
-		newState := []PoolView{pool1Old, pool2Old}
+		oldState := []Pool{pool1Old, pool2Old}
+		newState := []Pool{pool1Old, pool2Old}
 
 		diff := Differ(oldState, newState)
 
@@ -90,8 +90,8 @@ func TestDiffer(t *testing.T) {
 	})
 
 	t.Run("should handle empty initial and new states", func(t *testing.T) {
-		oldState := []PoolView{}
-		newState := []PoolView{}
+		oldState := []Pool{}
+		newState := []Pool{}
 
 		diff := Differ(oldState, newState)
 

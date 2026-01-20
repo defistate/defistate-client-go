@@ -4,6 +4,7 @@ import (
 	"math/big"
 )
 
+// @note do not change the PoolViewMinimal struct name until it is confirmed from the uniswap v3 indexer
 // PoolViewMinimal provides a view of a single Uniswap V3 pool's data.
 type PoolViewMinimal struct {
 	ID           uint64   `json:"id"`
@@ -14,12 +15,6 @@ type PoolViewMinimal struct {
 	Tick         int64    `json:"tick"`
 	Liquidity    *big.Int `json:"liquidity"`
 	SqrtPriceX96 *big.Int `json:"sqrtPriceX96"`
-}
-
-// TickView provides a safe, external representation of a single pool's state.
-type TickView struct {
-	ID    uint64     `json:"id"`
-	Ticks []TickInfo `json:"ticks"`
 }
 
 // TickInfo represents the information about a tick in a Uniswap V3 pool.
@@ -38,9 +33,9 @@ type TickInfo struct {
 	//Initialized                     bool -presence of this object implicitly means tick is initialized
 }
 
-// PoolView is the fully enriched view of a pool, combining the minimal
+// Pool is the fully enriched view of a pool, combining the minimal
 // core data with the detailed tick liquidity information.
-type PoolView struct {
+type Pool struct {
 	PoolViewMinimal `json:",inline"`
 	Ticks           []TickInfo `json:"ticks"`
 }

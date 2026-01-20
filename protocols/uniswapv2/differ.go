@@ -3,9 +3,9 @@ package uniswapv2
 // --- Diff Structures with Helper Methods ---
 
 type UniswapV2SystemDiff struct {
-	Additions []PoolView `json:"additions,omitempty"`
-	Updates   []PoolView `json:"updates,omitempty"`
-	Deletions []uint64   `json:"deletions,omitempty"`
+	Additions []Pool   `json:"additions,omitempty"`
+	Updates   []Pool   `json:"updates,omitempty"`
+	Deletions []uint64 `json:"deletions,omitempty"`
 }
 
 // IsEmpty returns true if the diff contains no changes.
@@ -19,21 +19,21 @@ func (d UniswapV2SystemDiff) IsEmpty() bool {
 // 1. Convert both the old and new lists into maps for O(1) average time complexity lookups.
 // 2. Iterate through the new map to identify additions and updates.
 // 3. Iterate through the old map to identify deletions.
-func Differ(old, new []PoolView) UniswapV2SystemDiff {
+func Differ(old, new []Pool) UniswapV2SystemDiff {
 	// --- 1. Create maps for efficient lookups ---
-	// The key is the pool's unique ID, and the value is the PoolView itself.
-	oldPoolsMap := make(map[uint64]PoolView, len(old))
+	// The key is the pool's unique ID, and the value is the Pool itself.
+	oldPoolsMap := make(map[uint64]Pool, len(old))
 	for _, pool := range old {
 		oldPoolsMap[pool.ID] = pool
 	}
 
-	newPoolsMap := make(map[uint64]PoolView, len(new))
+	newPoolsMap := make(map[uint64]Pool, len(new))
 	for _, pool := range new {
 		newPoolsMap[pool.ID] = pool
 	}
 
-	var additions []PoolView
-	var updates []PoolView
+	var additions []Pool
+	var updates []Pool
 	var deletions []uint64
 
 	// --- 2. Identify Additions and Updates ---

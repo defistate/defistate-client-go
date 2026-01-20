@@ -14,7 +14,7 @@ Defistate provides a block-synchronized stream, aggregated across protocols and 
 
 ## Installation
 ```
-git clone https://github.com/defistate/defi-state-client-go
+git clone https://github.com/defistate/defistate-client-go
 
 cd defi-state-client-go
 ```

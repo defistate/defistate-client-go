@@ -6,8 +6,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-// engine stuff
-
 type ProtocolName string
 type ProtocolID string
 
@@ -67,5 +65,3 @@ func (state *State) HasErrors() bool {
 	}
 	return false
 }
-
-// end engine stuff

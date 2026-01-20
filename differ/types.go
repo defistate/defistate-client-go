@@ -1,6 +1,6 @@
 package differ
 
-import "github.com/defistate/defi-state-client-go/engine"
+import "github.com/defistate/defistate-client-go/engine"
 
 // Logger defines a standard interface for structured, leveled logging.
 type Logger interface {

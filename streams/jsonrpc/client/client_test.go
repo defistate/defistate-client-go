@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	differ "github.com/defistate/defi-state-client-go/differ"
-	"github.com/defistate/defi-state-client-go/engine"
+	differ "github.com/defistate/defistate-client-go/differ"
+	"github.com/defistate/defistate-client-go/engine"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

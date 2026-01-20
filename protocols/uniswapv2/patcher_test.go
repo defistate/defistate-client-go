@@ -9,7 +9,7 @@ import (
 )
 
 // Helper to find a pool by ID in a slice, for testing assertions.
-func findPoolByID(pools []PoolView, id uint64) *PoolView {
+func findPoolByID(pools []Pool, id uint64) *Pool {
 	for i := range pools {
 		if pools[i].ID == id {
 			return &pools[i]
@@ -20,16 +20,16 @@ func findPoolByID(pools []PoolView, id uint64) *PoolView {
 
 func TestPatcher(t *testing.T) {
 	// --- Base Data for Tests ---
-	pool1Old := PoolView{ID: 1, Reserve0: big.NewInt(1000), Reserve1: big.NewInt(5000)}
-	pool2Old := PoolView{ID: 2, Reserve0: big.NewInt(2000), Reserve1: big.NewInt(6000)}
-	pool3Old := PoolView{ID: 3, Reserve0: big.NewInt(3000), Reserve1: big.NewInt(7000)}
+	pool1Old := Pool{ID: 1, Reserve0: big.NewInt(1000), Reserve1: big.NewInt(5000)}
+	pool2Old := Pool{ID: 2, Reserve0: big.NewInt(2000), Reserve1: big.NewInt(6000)}
+	pool3Old := Pool{ID: 3, Reserve0: big.NewInt(3000), Reserve1: big.NewInt(7000)}
 
-	initialState := []PoolView{pool1Old, pool2Old, pool3Old}
+	initialState := []Pool{pool1Old, pool2Old, pool3Old}
 
 	t.Run("should handle only additions", func(t *testing.T) {
-		pool4New := PoolView{ID: 4, Reserve0: big.NewInt(4000)}
+		pool4New := Pool{ID: 4, Reserve0: big.NewInt(4000)}
 		diff := UniswapV2SystemDiff{
-			Additions: []PoolView{pool4New},
+			Additions: []Pool{pool4New},
 		}
 
 		newState, err := Patcher(initialState, diff)
@@ -56,9 +56,9 @@ func TestPatcher(t *testing.T) {
 	})
 
 	t.Run("should handle only updates", func(t *testing.T) {
-		pool1Updated := PoolView{ID: 1, Reserve0: big.NewInt(1001), Reserve1: big.NewInt(5005)} // Reserves changed
+		pool1Updated := Pool{ID: 1, Reserve0: big.NewInt(1001), Reserve1: big.NewInt(5005)} // Reserves changed
 		diff := UniswapV2SystemDiff{
-			Updates: []PoolView{pool1Updated},
+			Updates: []Pool{pool1Updated},
 		}
 
 		newState, err := Patcher(initialState, diff)
@@ -73,13 +73,13 @@ func TestPatcher(t *testing.T) {
 
 	t.Run("should verify deep copy on update", func(t *testing.T) {
 		// Create a fresh copy of the initial state for this test to avoid modifying the original.
-		localInitialState := []PoolView{
+		localInitialState := []Pool{
 			{ID: 1, Reserve0: big.NewInt(1000), Reserve1: big.NewInt(5000)},
 		}
 
-		pool1Updated := PoolView{ID: 1, Reserve0: big.NewInt(1001), Reserve1: big.NewInt(5005)}
+		pool1Updated := Pool{ID: 1, Reserve0: big.NewInt(1001), Reserve1: big.NewInt(5005)}
 		diff := UniswapV2SystemDiff{
-			Updates: []PoolView{pool1Updated},
+			Updates: []Pool{pool1Updated},
 		}
 
 		newState, err := Patcher(localInitialState, diff)
@@ -97,11 +97,11 @@ func TestPatcher(t *testing.T) {
 
 	t.Run("should handle a mix of operations", func(t *testing.T) {
 		// Add pool 4, update pool 2, delete pool 3
-		pool4New := PoolView{ID: 4, Reserve0: big.NewInt(4000)}
-		pool2Updated := PoolView{ID: 2, Reserve0: big.NewInt(2002)}
+		pool4New := Pool{ID: 4, Reserve0: big.NewInt(4000)}
+		pool2Updated := Pool{ID: 2, Reserve0: big.NewInt(2002)}
 		diff := UniswapV2SystemDiff{
-			Additions: []PoolView{pool4New},
-			Updates:   []PoolView{pool2Updated},
+			Additions: []Pool{pool4New},
+			Updates:   []Pool{pool2Updated},
 			Deletions: []uint64{3},
 		}
 

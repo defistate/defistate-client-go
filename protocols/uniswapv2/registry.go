@@ -2,7 +2,7 @@ package uniswapv2
 
 import "math/big"
 
-type PoolView struct {
+type Pool struct {
 	ID       uint64   `json:"id"`
 	Token0   uint64   `json:"token0"`
 	Token1   uint64   `json:"token1"`

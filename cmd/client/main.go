@@ -11,12 +11,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/defistate/defi-state-client-go/cmd/client/config"
-	"github.com/defistate/defi-state-client-go/differ"
-	"github.com/defistate/defi-state-client-go/engine"
-	"github.com/defistate/defi-state-client-go/pkg/chains"
-	ethpkg "github.com/defistate/defi-state-client-go/pkg/chains/ethereum"
-	"github.com/defistate/defi-state-client-go/streams/jsonrpc/client"
+	"github.com/defistate/defistate-client-go/cmd/client/config"
+	"github.com/defistate/defistate-client-go/differ"
+	"github.com/defistate/defistate-client-go/engine"
+	"github.com/defistate/defistate-client-go/streams/jsonrpc/client"
+	"github.com/defistate/defistate-client-go/streams/jsonrpc/stateops/chains"
+	ethstateops "github.com/defistate/defistate-client-go/streams/jsonrpc/stateops/chains/ethereum"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -56,7 +56,7 @@ func main() {
 
 	switch cfg.ChainID.Uint64() {
 	case chains.Mainnet:
-		chainStateOps, err = ethpkg.NewStateOps(rootLogger, prometheusRegistry)
+		chainStateOps, err = ethstateops.NewStateOps(rootLogger, prometheusRegistry)
 		if err != nil {
 			rootLogger.Error("Failed to initialize Chain State Ops", "chain_id", cfg.ChainID, "error", err)
 			close()

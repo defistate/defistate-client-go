@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	differ "github.com/defistate/defi-state-client-go/differ"
-	engine "github.com/defistate/defi-state-client-go/engine"
+	differ "github.com/defistate/defistate-client-go/differ"
+	engine "github.com/defistate/defistate-client-go/engine"
 )
 
 // --- Type Definitions ---
