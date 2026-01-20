@@ -114,6 +114,7 @@ type TokenPoolGraph interface {
 type TokenPoolGrapher interface {
 	Graph(
 		tokenPool *tokenpoolregistry.TokenPoolRegistryView,
+		indexedTokenRegistry tokenregistryindexer.IndexedTokenSystem,
 		indexedPoolRegistry poolregistryindexer.IndexedPoolRegistry,
 		indexedUniswapV2 uniswapv2indexer.IndexedUniswapV2,
 		indexedUniswapV3 uniswapv3indexer.IndexedUniswapV3,

@@ -283,6 +283,7 @@ func (p *Client) processState(rawState *engine.State) (*State, error) {
 
 	graph, err := p.tokenPoolGrapher.Graph(
 		rawGraph,
+		indexedTokenSystem,
 		indexedPoolRegistry,
 		indexedUniswapV2,
 		indexedUniswapV3,

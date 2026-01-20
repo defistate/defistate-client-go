@@ -76,6 +76,7 @@ type mockGrapher struct{ called bool }
 
 func (m *mockGrapher) Graph(
 	tp *tokenpoolregistry.TokenPoolRegistryView,
+	tr tokenregistryindexer.IndexedTokenSystem,
 	pr poolregistryindexer.IndexedPoolRegistry,
 	v2 uniswapv2indexer.IndexedUniswapV2,
 	v3 uniswapv3indexer.IndexedUniswapV3,

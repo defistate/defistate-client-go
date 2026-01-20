@@ -78,9 +78,9 @@ func Dial(
 	}
 
 	clientCfg := jsonrpcclient.Config{
-		URL:        url,
-		Logger:     logger,
-		BufferSize: 1,
+		URL:              url,
+		Logger:           logger,
+		BufferSize:       1,
 		StatePatcher:     stateOps.Patch,
 		StateDecoder:     stateOps.DecodeStateJSON,
 		StateDiffDecoder: stateOps.DecodeStateDiffJSON,
@@ -283,6 +283,7 @@ func (p *Client) processState(rawState *engine.State) (*State, error) {
 
 	graph, err := p.tokenPoolGrapher.Graph(
 		rawGraph,
+		indexedTokenSystem,
 		indexedPoolRegistry,
 		indexedUniswapV2,
 		indexedUniswapV3,

@@ -76,6 +76,7 @@ type mockGrapher struct{ called bool }
 
 func (m *mockGrapher) Graph(
 	tp *tokenpoolregistry.TokenPoolRegistryView,
+	tr tokenregistryindexer.IndexedTokenSystem,
 	pr poolregistryindexer.IndexedPoolRegistry,
 	v2 uniswapv2indexer.IndexedUniswapV2,
 	v3 uniswapv3indexer.IndexedUniswapV3,
@@ -253,7 +254,7 @@ func TestClient_Backpressure(t *testing.T) {
 	c := &Client{
 		stream:              transport,
 		logger:              logger,
-		stateCh:            make(chan *State), // Unbuffered!
+		stateCh:             make(chan *State), // Unbuffered!
 		errCh:               make(chan error, 1),
 		tokenIndexer:        &mockTokenIndexer{},
 		poolRegistryIndexer: &mockPoolRegistryIndexer{},
