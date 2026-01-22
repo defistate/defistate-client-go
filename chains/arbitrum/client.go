@@ -80,7 +80,7 @@ func Dial(
 	clientCfg := jsonrpcclient.Config{
 		URL:              url,
 		Logger:           logger,
-		BufferSize:       1,
+		BufferSize:       100,
 		StatePatcher:     stateOps.Patch,
 		StateDecoder:     stateOps.DecodeStateJSON,
 		StateDiffDecoder: stateOps.DecodeStateDiffJSON,
@@ -99,7 +99,7 @@ func Dial(
 	p := &Client{
 		stream:              client,
 		logger:              logger,
-		stateCh:             make(chan *State, 1),
+		stateCh:             make(chan *State, 100),
 		errCh:               make(chan error, 1),
 		tokenIndexer:        tokenregistryindexer.New(),
 		poolRegistryIndexer: poolregistryindexer.New(),
